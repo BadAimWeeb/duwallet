@@ -16,6 +16,7 @@ specifiers:
   '@types/react-dom': ^17.0.11
   '@types/sha.js': ^2.4.0
   aes-js: ^3.1.2
+  buffer: link:buffer
   react: ^17.0.2
   react-dom: ^17.0.2
   react-router-dom: ^6.2.1
@@ -38,6 +39,7 @@ dependencies:
   '@types/react': 17.0.38
   '@types/react-dom': 17.0.11
   aes-js: 3.1.2
+  buffer: link:buffer
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-router-dom: 6.2.1_react-dom@17.0.2+react@17.0.2
