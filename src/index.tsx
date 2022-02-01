@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Navigate, Route } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -11,7 +11,7 @@ import './index.css';
 import Header from "./Header";
 
 // Pages
-import Pages_Encrypted from "./pages/Encrypted";
+import PagesEncrypted from "./pages/Encrypted";
 
 import CLogic from "./CLogic";
 import reportWebVitals from './reportWebVitals';
@@ -32,6 +32,11 @@ switch (readStatus) {
       <Navigate to="/malformed" />
     )
     break;
+  case "NEW":
+    extDOM = (
+      <Navigate to="/new" />
+    )
+    break;
 }
 
 ReactDOM.render(
@@ -39,9 +44,9 @@ ReactDOM.render(
     <Router>
       <Header />
       {extDOM}
-      <Route path={"/encrypted"} >
-        <Pages_Encrypted />
-      </Route>
+      <Routes>
+        <Route path={"/encrypted"} element={<PagesEncrypted />} />
+      </Routes>
     </Router>
   </React.StrictMode>,
   document.getElementById('root')

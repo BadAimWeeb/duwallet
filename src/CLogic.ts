@@ -43,7 +43,7 @@ export default class CLogic {
         } else {
             localStorage.setItem("duwallet", "{}");
             this.db = {};
-            return "OK";
+            return "NEW";
         }
     }
 
