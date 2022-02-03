@@ -11,7 +11,6 @@ import './index.css';
 import Header from "./Header";
 
 // Pages
-import PagesEncrypted from "./pages/Encrypted";
 
 import CLogic from "./CLogic";
 import reportWebVitals from './reportWebVitals';
@@ -24,17 +23,17 @@ let readStatus = cLogicInstance.readData();
 switch (readStatus) {
   case "ENCRYPTED":
     extDOM = (
-      <Navigate to="/encrypted" />
+      null
     )
     break;
   case "MALFORMED":
     extDOM = (
-      <Navigate to="/malformed" />
+      null
     )
     break;
   case "NEW":
     extDOM = (
-      <Navigate to="/new" />
+      null
     )
     break;
 }
@@ -45,7 +44,7 @@ ReactDOM.render(
       <Header />
       {extDOM}
       <Routes>
-        <Route path={"/encrypted"} element={<PagesEncrypted />} />
+        
       </Routes>
     </Router>
   </React.StrictMode>,

@@ -3,7 +3,17 @@ import sha from "sha.js";
 
 export default class CLogic {
     #key: string | null = null;
-    db: any;
+    protected db: object = {};
+    cbs: Function[] = [];
+    rcode: number = 0;
+
+    hookDataUpdate(cb: Function) {
+        this.cbs.push(cb);
+    }
+
+    unhookDataUpdate(cb: Function) {
+        this.cbs.splice(this.cbs.findIndex(v => v === cb), 1);
+    }
 
     readData(key?: string) {
         if (key) {
@@ -22,27 +32,34 @@ export default class CLogic {
                         let decDataS = aes.utils.utf8.fromBytes(decData);
                         try {
                             this.db = JSON.parse(decDataS);
+                            this.callCB();
                             return "OK";
                         } catch {
+                            this.callCB();
                             return "MALFORMED";
                         }
                     } catch {
+                        this.callCB();
                         return "DECFAULT";
                     }
                 } else {
+                    this.callCB();
                     return "ENCRYPTED";
                 }
             } else {
                 try {
                     this.db = JSON.parse(data);
+                    this.callCB();
                     return "OK";
                 } catch {
+                    this.callCB();
                     return "MALFORMED";
                 }
             }
         } else {
             localStorage.setItem("duwallet", "{}");
             this.db = {};
+            this.callCB();
             return "NEW";
         }
     }
@@ -67,7 +84,22 @@ export default class CLogic {
         localStorage.setItem("duwallet", data);
     }
 
+    setData(data: object) {
+        this.db = data;
+        this.writeData();
+        this.callCB();
+    }
+
+    callCB() {
+        this.cbs.forEach(cb => cb(this.rcode++));
+    }
+
     voidKey() {
         this.#key = null;
+    }
+
+    voidData() {
+        this.voidKey();
+        this.setData({});
     }
 }
