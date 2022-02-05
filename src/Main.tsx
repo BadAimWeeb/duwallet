@@ -47,6 +47,7 @@ export default class Main extends React.Component {
                 setExtDOM(d);
                 cf();
               } else {
+                cLogicInstance.voidData();
                 setExtDOM(null);
               }
             }} />);

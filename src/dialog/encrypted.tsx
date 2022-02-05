@@ -32,10 +32,10 @@ export default function FormDialog(props: {
     return (
         <div>
             <Dialog open={open} onClose={() => true} disableEscapeKeyDown>
-                <DialogTitle>Vault is encrypted.</DialogTitle>
+                <DialogTitle>Wallet is encrypted.</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Please enter your passphrase to unlock this vault.
+                        Please enter your passphrase to unlock this wallet.
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -46,6 +46,10 @@ export default function FormDialog(props: {
                         fullWidth
                         variant="standard"
                         onChange={e => setPassphrase(e.target.value)}
+                        onKeyDown={e => (
+                            e.key === "Enter" ? handleClose(passphrase) : 
+                                e.key === "Escape" ? handleClose(false) : null
+                        )}
                     />
                     <Typography color="#F00">{error}</Typography>
                 </DialogContent>
