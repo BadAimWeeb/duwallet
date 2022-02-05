@@ -16,7 +16,7 @@ export default class CLogic {
     }
 
     readData(key?: string) {
-        if (key) {
+        if (typeof key === "string") {
             this.#key = key;
         }
 
@@ -32,11 +32,12 @@ export default class CLogic {
                         let decDataS = aes.utils.utf8.fromBytes(decData);
                         try {
                             this.db = JSON.parse(decDataS);
+                            console.log(decData, decDataS);
                             this.callCB();
                             return "OK";
                         } catch {
                             this.callCB();
-                            return "MALFORMED";
+                            return "DECFAULT";
                         }
                     } catch {
                         this.callCB();
