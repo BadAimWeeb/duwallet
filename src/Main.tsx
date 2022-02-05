@@ -4,7 +4,7 @@ import Header from "./Header";
 
 // Dialog
 import DialogEncrypted from "./dialog/encrypted";
-import DialogEncryptClearConfirmation from "./dialog/encryptClearConfirmation";
+import DialogClearConfirmation from "./dialog/clearConfirmation";
 import DialogMalformedConfirmation from "./dialog/malformedConfirmation";
 import DialogNewData from "./dialog/newData";
 
@@ -42,13 +42,13 @@ export default class Main extends React.Component {
       case "ENCRYPTED":
         let d = <DialogEncrypted callback={(cbData: string | boolean, cf: Function) => {
           if (typeof cbData === "boolean") {
-            setExtDOM(<DialogEncryptClearConfirmation cb={(confirm: boolean) => {
+            setExtDOM(<DialogClearConfirmation cb={(confirm: boolean) => {
               if (!confirm) {
                 setExtDOM(d);
                 cf();
               } else {
                 cLogicInstance.voidData();
-                setExtDOM(null);
+                setTimeout(() => setExtDOM(null), 500);
               }
             }} />);
           } else {
@@ -56,7 +56,7 @@ export default class Main extends React.Component {
             readStatus = cLogicInstance.readData(cbData);
             switch (readStatus) {
               case "OK":
-                setExtDOM(null);
+                setTimeout(() => setExtDOM(null), 500);
                 break;
               case "MALFORMED":
                 setExtDOM(
