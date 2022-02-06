@@ -16,13 +16,13 @@ function exportData() {
     ae.click();
 }
 
-export default function MalformedConfirmationDialog() {
+export default function MalformedConfirmationDialog(props: {
+    cLogic: CLogic
+}) {
     const [open, setOpen] = React.useState(true);
 
-    const handleClose = () => {
-        let clogic: CLogic = (globalThis as any).cLogic as CLogic;
-        
-        clogic.voidData();
+    const handleClose = () => {        
+        props.cLogic.voidData();
         setOpen(false);
     };
 

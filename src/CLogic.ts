@@ -58,7 +58,6 @@ export default class CLogic {
                 }
             }
         } else {
-            localStorage.setItem("duwallet", "{}");
             this.db = {};
             this.callCB();
             return "NEW";
@@ -85,9 +84,14 @@ export default class CLogic {
         localStorage.setItem("duwallet", data);
     }
 
-    setData(data: object) {
-        this.db = data;
-        this.writeData();
+    setData(data?: object) {
+        if (data) {
+            this.db = data;
+            this.writeData();
+        } else {
+            this.db = {};
+            localStorage.removeItem("duwallet");
+        }
         this.callCB();
     }
 
@@ -101,6 +105,6 @@ export default class CLogic {
 
     voidData() {
         this.voidKey();
-        this.setData({});
+        this.setData();
     }
 }

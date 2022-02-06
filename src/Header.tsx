@@ -74,11 +74,9 @@ export default function Header() {
     );
 
     return (
-        <header>
-            <AppBar>
-                <ActualHeader />
-                {etw ? expTechWarn : null}
-            </AppBar>
-        </header>
+        <AppBar position="sticky">
+            <ActualHeader />
+            {etw ? expTechWarn : null}
+        </AppBar>
     );
 }
