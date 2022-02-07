@@ -23,10 +23,12 @@ let cLogicInstance = new CLogic();
 export default class Main extends React.Component {
     state: {
         extDOM: JSX.Element | null,
-        theme: Theme
+        theme: Theme,
+        dark: boolean
     } = {
             extDOM: null,
-            theme: createTheme()
+            theme: createTheme(),
+            dark: false
         }
 
     constructor(props: {}) {
@@ -38,6 +40,7 @@ export default class Main extends React.Component {
                 mode: mdark.matches ? "dark" : "light"
             }
         });
+        this.state.dark = mdark.matches;
 
         mdark.addEventListener("change", e => {
             this.setState({
@@ -46,7 +49,8 @@ export default class Main extends React.Component {
                     palette: {
                         mode: e.matches ? "dark" : "light"
                     }
-                })
+                }),
+                dark: e.matches
             });
         });
     }
@@ -132,7 +136,7 @@ export default class Main extends React.Component {
                         marginTop: 24
                     }}>
                         <Routes>
-                            <Route path="/iodata" element={<PageIOData cLogic={cLogicInstance} />} />
+                            <Route path="/iodata" element={<PageIOData dark={this.state.dark} cLogic={cLogicInstance} />} />
                         </Routes>
                     </Container>
                 </Router>

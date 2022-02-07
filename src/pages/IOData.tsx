@@ -1,22 +1,38 @@
 import React from "react";
-import { Paper } from "@mui/material";
+import { Paper, Button, Typography, Grid } from "@mui/material";
 
 import CLogic from "../CLogic";
 
+import "./IOData.css";
+
 export default function IOData(props: {
-    cLogic: CLogic
+    cLogic: CLogic,
+    dark: boolean
 }) {
     return (
         <React.Fragment>
-           <Paper elevation={1} style={{ padding: 8 }}>
-               <Paper elevation={3} style={{ marginTop: 8, marginBottom: 8, padding: 8 }}>
-                    test1
-               </Paper>
+            <Paper elevation={2} className="iodata-l1">
+                <Grid container spacing={4}>
+                    <Grid item xs={6}>
+                        <Paper elevation={4} className="iodata-l1">
+                            <Typography gutterBottom>
+                                <b style={{ fontSize: 14 }}>PASSPHRASE CHANGING</b>
+                            </Typography>
+                            <Button variant={props.dark ? "outlined" : "contained"}>Change passphrase</Button>
+                        </Paper>
+                    </Grid>
 
-               <Paper elevation={3} style={{ marginTop: 8, marginBottom: 8, padding: 8 }}>
-                   test2
-               </Paper>
-            </Paper> 
+                    <Grid item xs={6}>
+                        <Paper elevation={4} className="iodata-l1">
+                            <Button variant={props.dark ? "outlined" : "contained"}>Import data</Button>
+                            <Button variant={props.dark ? "outlined" : "contained"} color="warning">Export data (un-encrypted)</Button>
+                            <Button variant={props.dark ? "outlined" : "contained"} color="warning">Export data (re-encrypted)</Button>
+                            <Button variant={props.dark ? "outlined" : "contained"} color="success">Export data (original)</Button>
+                            <Button variant={props.dark ? "outlined" : "contained"} color="error">Clear all wallet data</Button>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Paper>
         </React.Fragment>
     );
 }
