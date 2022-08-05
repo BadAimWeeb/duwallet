@@ -48,8 +48,10 @@ const BootstrapDialogTitle = (props: DialogTitleProps) => {
     );
 };
 
-export default function NewWalletDialog(props: {
+export default function GenericYesNoDialog(props: {
     callback: (result: string) => void;
+    title: string;
+    message: JSX.Element;
 }) {
     const [open, setOpen] = React.useState(true);
 
@@ -65,22 +67,16 @@ export default function NewWalletDialog(props: {
                 open={open}
             >
                 <BootstrapDialogTitle id="customized-dialog-title">
-                    New Wallet
+                    {props.title}
                 </BootstrapDialogTitle>
                 <DialogContent dividers>
-                    <Typography gutterBottom>
-                        Do you want to allow other users without your passphrase to view your balance?
-                    </Typography>
+                    {props.message}
                 </DialogContent>
                 <DialogActions>
-                    <Button color="error" onClick={() => handleClose("UNENCRYPTED")}>
-                        Unencrypted
-                    </Button>
-                    <div style={{flex: '1 0 0'}} />
-                    <Button onClick={() => handleClose("ENCRYPT_KEY")}>
+                    <Button onClick={() => handleClose("YES")}>
                         Yes
                     </Button>
-                    <Button autoFocus onClick={() => handleClose("ENCRYPT_FULL")}>
+                    <Button autoFocus onClick={() => handleClose("NO")}>
                         No
                     </Button>
                 </DialogActions>

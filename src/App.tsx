@@ -8,7 +8,7 @@ import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // MUI components
-import { Container } from "@mui/material";
+import { Container, Typography } from "@mui/material";
 
 // Import header and pages
 import Header from "./Header";
@@ -16,6 +16,9 @@ import Header from "./Header";
 // Import dialog
 import WelcomeDialog from "./Dialog/Welcome";
 import NewWalletDialog from "./Dialog/NewWallet";
+
+// Import generic dialog
+import YesNoDialog from "./Dialog/YesNo";
 
 // Import API
 import API from "./API/index";
@@ -50,24 +53,65 @@ export default function App() {
         });
     }, []);
 
+    function openDialog(Dialog: React.FunctionComponent<{
+        callback: (result: string) => void;
+    }>) {
+        let pResolve: (x: string) => void, promise = new Promise<string>((resolve) => {
+            pResolve = resolve;
+        });
+
+        setDialog(<Dialog callback={(result) => {
+            pResolve(result);
+            setDialog(<div />);
+        }} />);
+        return promise;
+    }
+
+    function openYesNoDialog(title: string, message: JSX.Element) {
+        let pResolve: (x: string) => void, promise = new Promise<string>((resolve) => {
+            pResolve = resolve;
+        });
+
+        setDialog(<YesNoDialog callback={(result) => {
+            pResolve(result);
+            setDialog(<div />);
+        }} title={title} message={message} />);
+        return promise;
+    }
+
     // Main code
     useEffect(() => {
-        // Attempt to load data
-        let result = API.loadData();
+        (async () => {
+            // Attempt to load data
+            let result = API.loadData();
 
-        switch (result) {
-            case "NEW":
-                setDialog(<WelcomeDialog callback={(result) => {
-                    switch (result) {
-                        case "NEW":
-                            setDialog(<NewWalletDialog callback={(result) => {
-
-                            }} />);
-                            break;
+            switch (result) {
+                case "NEW":
+                    {
+                        let resultWelcome = await openDialog(WelcomeDialog);
+                        switch (result) {
+                            case "NEW":
+                                for (; ;) {
+                                    let result = await openDialog(NewWalletDialog);
+                                    switch (result) {
+                                        case "UNENCRYPTED":
+                                            let confirmation = await openYesNoDialog(
+                                                "Are you sure?",
+                                                <Typography gutterBottom>
+                                                    Your wallet will NOT be encrypted and anyone that has access to wallet data can spend your funds.<br />
+                                                    You should only do this if you know what you are doing.
+                                                </Typography>
+                                            );
+                                            if (confirmation == "YES") {
+                                                break;
+                                            } else continue;
+                                    }
+                                }
+                        }
                     }
-                }} />);
-                break;
-        }
+                    break;
+            }
+        })();
     }, []);
 
     return (
