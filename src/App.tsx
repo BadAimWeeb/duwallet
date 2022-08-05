@@ -1,34 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { CssBaseline } from "@mui/material";
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+// Implementing Material UI's dark mode
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+
+export default function App() {
+    let [isDarkMode, setIsDarkMode] = useState(
+        // Detect if system-wide dark theme is enabled
+        globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+    );
+    let [theme, setTheme] = useState(createTheme({
+        palette: {
+            mode: isDarkMode ? "dark" : "light"
+        }
+    }));
+
+    // Regenerate theme when isDarkMode changed
+    useEffect(() => {
+        setTheme(createTheme({
+            palette: {
+                mode: isDarkMode ? "dark" : "light"
+            }
+        }));
+    }, [isDarkMode]);
+
+    // Detect if system-wide dark theme is changed, and reflect that in isDarkMode
+    useEffect(() => {
+        let mediaQueryList = globalThis.matchMedia("(prefers-color-scheme: dark)");
+        mediaQueryList.addEventListener("change", () => {
+            setIsDarkMode(mediaQueryList.matches);
+        });
+    }, []);
+
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline enableColorScheme />
+        </ThemeProvider>
+    );
 }
-
-export default App
