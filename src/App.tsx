@@ -1,20 +1,33 @@
 import { useState, useEffect } from 'react';
 
-import { CssBaseline } from "@mui/material";
+// Routing
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
-// Implementing Material UI's dark mode
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+// Material UI's dark mode
+import { CssBaseline } from "@mui/material";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+// MUI components
+import { Container } from "@mui/material";
+
+// Import header and pages
+import Header from "./Header";
+
+// Import dialog
+import WelcomeDialog from "./Dialog/Welcome";
 
 export default function App() {
     let [isDarkMode, setIsDarkMode] = useState(
         // Detect if system-wide dark theme is enabled
-        globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+        matchMedia("(prefers-color-scheme: dark)").matches
     );
     let [theme, setTheme] = useState(createTheme({
         palette: {
             mode: isDarkMode ? "dark" : "light"
         }
     }));
+
+    let [dialog, setDialog] = useState(<WelcomeDialog />);
 
     // Regenerate theme when isDarkMode changed
     useEffect(() => {
@@ -27,7 +40,7 @@ export default function App() {
 
     // Detect if system-wide dark theme is changed, and reflect that in isDarkMode
     useEffect(() => {
-        let mediaQueryList = globalThis.matchMedia("(prefers-color-scheme: dark)");
+        let mediaQueryList = matchMedia("(prefers-color-scheme: dark)");
         mediaQueryList.addEventListener("change", () => {
             setIsDarkMode(mediaQueryList.matches);
         });
@@ -36,6 +49,18 @@ export default function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline enableColorScheme />
+
+            <Router>
+                <Header />
+                <Container style={{
+                    marginTop: 24
+                }}>
+                    <Routes>
+
+                    </Routes>
+                </Container>
+                {dialog}
+            </Router>
         </ThemeProvider>
     );
 }
