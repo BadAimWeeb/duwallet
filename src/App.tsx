@@ -15,6 +15,10 @@ import Header from "./Header";
 
 // Import dialog
 import WelcomeDialog from "./Dialog/Welcome";
+import NewWalletDialog from "./Dialog/NewWallet";
+
+// Import API
+import API from "./API/index";
 
 export default function App() {
     let [isDarkMode, setIsDarkMode] = useState(
@@ -27,7 +31,7 @@ export default function App() {
         }
     }));
 
-    let [dialog, setDialog] = useState(<WelcomeDialog />);
+    let [dialog, setDialog] = useState(<div />);
 
     // Regenerate theme when isDarkMode changed
     useEffect(() => {
@@ -44,6 +48,26 @@ export default function App() {
         mediaQueryList.addEventListener("change", () => {
             setIsDarkMode(mediaQueryList.matches);
         });
+    }, []);
+
+    // Main code
+    useEffect(() => {
+        // Attempt to load data
+        let result = API.loadData();
+
+        switch (result) {
+            case "NEW":
+                setDialog(<WelcomeDialog callback={(result) => {
+                    switch (result) {
+                        case "NEW":
+                            setDialog(<NewWalletDialog callback={(result) => {
+
+                            }} />);
+                            break;
+                    }
+                }} />);
+                break;
+        }
     }, []);
 
     return (

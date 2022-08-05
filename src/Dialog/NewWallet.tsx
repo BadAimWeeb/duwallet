@@ -48,7 +48,7 @@ const BootstrapDialogTitle = (props: DialogTitleProps) => {
     );
 };
 
-export default function WelcomeDialog(props: {
+export default function NewWalletDialog(props: {
     callback: (result: string) => void;
 }) {
     const [open, setOpen] = React.useState(true);
@@ -65,29 +65,31 @@ export default function WelcomeDialog(props: {
                 open={open}
             >
                 <BootstrapDialogTitle id="customized-dialog-title">
-                    Welcome to DUWallet!
+                    New Wallet
                 </BootstrapDialogTitle>
                 <DialogContent dividers>
                     <Typography gutterBottom>
-                        DUWallet is a (currently experimental) universal cryptocurrency 
-                        wallet, supporting many different token/coin types (including but not limited to BTC, ETH, SOL, ...)
+                        There are three options when creating a wallet:
                     </Typography>
                     <Typography gutterBottom>
-                        This wallet program is created by BadAimWeeb and 
-                        is <a href="https://github.com/BadAimWeeb/duwallet" target="_blank" rel="noreferrer">open-source</a>.<br />
-                        If you find this useful, consider donating to the creator (at UD domain badaimweeb.888) 💖
+                        Option 1: Create a new encrypted wallet, only viewable with passphrase
                     </Typography>
                     <Typography gutterBottom>
-                        It looks like this is the first time you are using DUWallet.
-                        Do you want to start with a new wallet or restore an existing one?
+                        Option 2: Create a new encrypted wallet, but publicly viewable without passphrase
+                    </Typography>
+                    <Typography gutterBottom>
+                        Option 3 (not recommended): Create a new unencrypted wallet. This should only be used for debug purposes only.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => handleClose("RESTORE")}>
-                        Restore
+                    <Button autoFocus onClick={() => handleClose("ENCRYPT_FULL")}>
+                        Option 1
                     </Button>
-                    <Button onClick={() => handleClose("NEW")}>
-                        New wallet
+                    <Button onClick={() => handleClose("ENCRYPT_KEY")}>
+                        Option 2
+                    </Button>
+                    <Button color="error" onClick={() => handleClose("UNENCRYPTED")}>
+                        Option 3
                     </Button>
                 </DialogActions>
             </BootstrapDialog>

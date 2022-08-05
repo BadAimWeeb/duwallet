@@ -4,6 +4,7 @@ specifiers:
   '@emotion/react': ^11.10.0
   '@emotion/styled': ^11.10.0
   '@fontsource/roboto': ^4.5.7
+  '@msgpack/msgpack': ^2.7.2
   '@mui/icons-material': ^5.8.4
   '@mui/material': ^5.9.3
   '@types/react': ^18.0.15
@@ -19,6 +20,7 @@ dependencies:
   '@emotion/react': 11.10.0_dekd3qhq25os2zmp2sxj6oaoou
   '@emotion/styled': 11.10.0_cvyjuqpqzsw2jroi6znapo3uiq
   '@fontsource/roboto': 4.5.7
+  '@msgpack/msgpack': 2.7.2
   '@mui/icons-material': 5.8.4_x6czzi3axj3g3crkmdh4a3wnjy
   '@mui/material': 5.9.3_x23mn2l7fw5e56g6ttw67k5uxm
   react: 18.2.0
@@ -446,6 +448,11 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
+
+  /@msgpack/msgpack/2.7.2:
+    resolution: {integrity: sha512-rYEi46+gIzufyYUAoHDnRzkWGxajpD9vVXFQ3g1vbjrBm6P7MBmm+s/fqPa46sxa+8FOUdEuRQKaugo5a4JWpw==}
+    engines: {node: '>= 10'}
+    dev: false
 
   /@mui/base/5.0.0-alpha.92_bb2bxwco6ptpubzwpazr52qf6i:
     resolution: {integrity: sha512-ZgnSLrTXL4iUdLQhjp01dAOTQPQlnwrqjZRwDT3E6LZXEYn6cMv1MY6LZkWcF/zxrUnyasnsyMAgZ5d8AXS7bA==}
