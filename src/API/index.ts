@@ -65,7 +65,7 @@ class API {
                 localStorage.setItem(
                     'duwallet',
                     Array.from(msgencode([0, this.data.plainTextPart]))
-                        .map(x => x.toString(16).padStart(2, '0')).join()
+                        .map(x => x.toString(16).padStart(2, '0')).join("")
                 );
                 return true;
             case "HALF-ENCRYPTED":
@@ -81,13 +81,17 @@ class API {
 
                 // Convert salted passphrase to Uint8Array and generate key
                 let saltedPassphraseUint8Array = new TextEncoder().encode(saltedPassphrase);
-                let key = await sha256Hash(saltedPassphraseUint8Array);
+                let key = new Uint8Array(await sha256Hash(saltedPassphraseUint8Array));
 
                 // Generate IV
                 let iv = crypto.getRandomValues(new Uint8Array(16));
 
                 // Encrypt data
-                let encryptedData = await aesEncrypt(iv, key, this.data.plainTextPart);
+                let encryptedData = await aesEncrypt(
+                    iv, 
+                    key, 
+                    msgencode(this.data.encryptPart)
+                );
 
                 // Save data
                 localStorage.setItem(
@@ -101,7 +105,7 @@ class API {
                         Array.from(iv),
                         encryptedData
                     ]))
-                        .map(x => x.toString(16).padStart(2, '0')).join()
+                        .map(x => x.toString(16).padStart(2, '0')).join("")
                 );
         }
     }
