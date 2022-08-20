@@ -1,5 +1,4 @@
-import msgpack from "@msgpack/msgpack";
-import { NumbersOutlined } from "@mui/icons-material";
+import { encode as msgencode, decode as msgdecode } from "@msgpack/msgpack";
 
 import { encrypt as aesEncrypt, decrypt as aesDecrypt } from "./AES";
 import { hash as sha256Hash } from "./SHA256";
@@ -65,7 +64,7 @@ class API {
                 // Save data
                 localStorage.setItem(
                     'duwallet',
-                    Array.from(msgpack.encode([0, this.data.plainTextPart]))
+                    Array.from(msgencode([0, this.data.plainTextPart]))
                         .map(x => x.toString(16).padStart(2, '0')).join()
                 );
                 return true;
@@ -93,7 +92,7 @@ class API {
                 // Save data
                 localStorage.setItem(
                     'duwallet',
-                    Array.from(msgpack.encode([
+                    Array.from(msgencode([
                         this.data.type === "ENCRYPTED" ? 2 : 1,
                         this.data.type === "ENCRYPTED" ?
                             null :
