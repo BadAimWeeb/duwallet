@@ -14,10 +14,10 @@ export async function encrypt(iv: Uint8Array, key: Uint8Array, data: Uint8Array)
             { name: "AES-CBC", iv },
             await SubtleCrypto.importKey("raw", key, "AES-CBC", false, ["encrypt"]), 
             data
-        )) as Uint8Array;
+        )) as ArrayBuffer;
 
         // Return encrypted data
-        return encryptedData;
+        return new Uint8Array(encryptedData);
     } else {
         // Encrypt using aes-js
         let aesCbc = new aes.ModeOfOperation.cbc(key, iv);

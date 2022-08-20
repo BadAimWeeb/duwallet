@@ -107,9 +107,9 @@ export default function App() {
 
     // Main code
     useEffect(() => {
-        (async () => {
+        (async function recall(ph?: string) {
             // Attempt to load data
-            let result = API.loadData();
+            let result: Awaited<ReturnType<typeof API.loadData>> = await API.loadData(ph);
 
             switch (result) {
                 case "NEW":
@@ -134,11 +134,11 @@ export default function App() {
                                     } else if (result === "ENCRYPT_KEY" || result === "ENCRYPT_FULL") {
                                         let passphrase = await openPromptInputDialog(
                                             "Enter passphrase",
-                                            <Typography gutterBottom>
+                                            <>
                                                 Enter a passphrase that will be used to encrypt your wallet.<br />
                                                 This passphrase will be used to decrypt your wallet when you want to spend your funds.<br />
                                                 Leave empty to go back to the previous screen.
-                                            </Typography>,
+                                            </>,
                                             "password",
                                             "Passphrase"
                                         );
@@ -146,9 +146,9 @@ export default function App() {
                                         // Confirm password
                                         let passphraseConfirm = await openPromptInputDialog(
                                             "Confirm passphrase",
-                                            <Typography gutterBottom>
+                                            <>
                                                 Enter the passphrase again to confirm.
-                                            </Typography>,
+                                            </>,
                                             "password",
                                             "Passphrase"
                                         );
@@ -171,6 +171,39 @@ export default function App() {
                         }
                     }
                     break;
+                case "PASSPHRASE_REQUIRED":
+                case "PASSPHRASE_REQUIRED_HALF":
+                    {
+                        if (ph === "") break;
+
+                        let passphrase = await openPromptInputDialog(
+                            "Enter passphrase",
+                            <>
+                                This wallet is encrypted. Please enter the passphrase to decrypt it.
+                                {result === "PASSPHRASE_REQUIRED_HALF" ? <><br /><br />Leave blank to enter view-only mode.</> : ""}
+                            </>,
+                            "password",
+                            "Passphrase"
+                        );
+
+                        recall(passphrase);
+                    }
+                    break;
+                case "WRONG_PASSPHRASE":
+                    {
+                        let passphrase = await openPromptInputDialog(
+                            "Enter passphrase",
+                            <>
+                                The passphrase you entered is incorrect. Please try again.
+                            </>,
+                            "password",
+                            "Passphrase"
+                        );
+
+                        recall(passphrase);
+                    }
+                    break;
+                
             }
         })();
     }, []);
