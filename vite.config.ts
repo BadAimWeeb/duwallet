@@ -10,11 +10,6 @@ import rollupNodePolyfills from 'rollup-plugin-node-polyfills'
 export default defineConfig({
     base: './',
     plugins: [react()],
-    resolve: {
-        alias: {
-            buffer: 'buffer/'
-        }
-    },
     optimizeDeps: {
         // Polyfilling node modules in development
         esbuildOptions: {
