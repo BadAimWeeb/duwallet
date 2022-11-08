@@ -174,7 +174,7 @@ export default function App() {
                 case "PASSPHRASE_REQUIRED":
                 case "PASSPHRASE_REQUIRED_HALF":
                     {
-                        if (ph === "") break;
+                        //if (ph === "") break;
 
                         let passphrase = await openPromptInputDialog(
                             "Enter passphrase",

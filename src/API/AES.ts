@@ -5,14 +5,14 @@ if (!hasSubtle) {
     console.warn("WebCrypto is not available. Using aes-js instead, which is not time-constant and therefore not secure.");
 }
 
-export async function encrypt(iv: Uint8Array, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+export async function encrypt(counter: Uint8Array, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
     // Test if WebCrypto is available
     if (hasSubtle) {
         const SubtleCrypto = window.crypto.subtle;
         // Encrypt using WebCrypto
         let encryptedData = (await SubtleCrypto.encrypt(
-            { name: "AES-CBC", iv },
-            await SubtleCrypto.importKey("raw", key, "AES-CBC", false, ["encrypt"]), 
+            { name: "AES-CTR", counter },
+            await SubtleCrypto.importKey("raw", key, "AES-CTR", false, ["encrypt"]), 
             data
         )) as ArrayBuffer;
 
@@ -20,20 +20,20 @@ export async function encrypt(iv: Uint8Array, key: Uint8Array, data: Uint8Array)
         return new Uint8Array(encryptedData);
     } else {
         // Encrypt using aes-js
-        let aesCbc = new aes.ModeOfOperation.cbc(key, iv);
-        let encryptedData = aesCbc.encrypt(data);
+        let aesCtr = new aes.ModeOfOperation.ctr(key, new aes.Counter(counter));
+        let encryptedData = aesCtr.encrypt(data);
         return encryptedData;
     }
 }
 
-export async function decrypt(iv: Uint8Array, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+export async function decrypt(counter: Uint8Array, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
     // Test if WebCrypto is available
     if (hasSubtle) {
         const SubtleCrypto = window.crypto.subtle;
         // Decrypt using WebCrypto
         let decryptedData = (await SubtleCrypto.decrypt(
-            { name: "AES-CBC", iv },
-            await SubtleCrypto.importKey("raw", key, "AES-CBC", false, ["decrypt"]),
+            { name: "AES-CTR", counter },
+            await SubtleCrypto.importKey("raw", key, "AES-CTR", false, ["decrypt"]),
             data
         )) as Uint8Array;
 
@@ -41,8 +41,8 @@ export async function decrypt(iv: Uint8Array, key: Uint8Array, data: Uint8Array)
         return decryptedData;
     } else {
         // Decrypt using aes-js
-        let aesCbc = new aes.ModeOfOperation.cbc(key, iv);
-        let decryptedData = aesCbc.decrypt(data);
+        let aesCtr = new aes.ModeOfOperation.ctr(key, new aes.Counter(counter));
+        let decryptedData = aesCtr.decrypt(data);
         return decryptedData;
     }
 }

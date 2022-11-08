@@ -1,4 +1,5 @@
 import { encode as msgencode, decode as msgdecode } from "@msgpack/msgpack";
+import pako from "pako";
 
 import { encrypt as aesEncrypt, decrypt as aesDecrypt } from "./AES";
 import { hash as sha256Hash } from "./SHA256";
@@ -20,76 +21,91 @@ class API {
     async loadData(passphrase?: string) {
         let lsData = localStorage.getItem('duwallet');
         if (lsData) {
-            let data = msgdecode(
-                new Uint8Array(lsData.match(/.{1,2}/g)!.map(x => parseInt(x, 16)))
-            ) as [mode: number, unencrypted: any, salt: number[], iv: number[], encrypted: number[]];
+            try {
+                let decompressed = pako.inflate(
+                    new Uint8Array(lsData.match(/.{1,2}/g)!.map(x => parseInt(x, 16)))
+                );
 
-            switch (data[0]) {
-                case 0: // Unencrypted
-                    this.data = {
-                        encryptPart: null,
-                        plainTextPart: data[1],
-                        type: "UNENCRYPTED",
-                        isDecrypted: true
-                    };
-                    return "OK";
-                case 1: // Half-encrypted
-                case 2: // Encrypted
-                    if (passphrase) {
-                        // Try to decrypt
-                        let saltString = Array.from(data[2])
-                            .map(x => x.toString(16).padStart(2, '0')).join();
+                let data = msgdecode(
+                    decompressed
+                ) as [mode: number, unencrypted: any, salt: number[], iv: number[], encrypted: number[], checksum: number[]];
 
-                        // Add salt to passphrase
-                        let saltedPassphrase = passphrase + saltString;
+                switch (data[0]) {
+                    case 0: // Unencrypted
+                        this.data = {
+                            encryptPart: null,
+                            plainTextPart: data[1],
+                            type: "UNENCRYPTED",
+                            isDecrypted: true
+                        };
+                        return "OK";
+                    case 1: // Half-encrypted
+                    case 2: // Encrypted
+                        if (passphrase) {
+                            // Try to decrypt
+                            let saltString = Array.from(data[2])
+                                .map(x => x.toString(16).padStart(2, '0')).join();
 
-                        // Convert salted passphrase to Uint8Array and generate key
-                        let saltedPassphraseUint8Array = new TextEncoder().encode(saltedPassphrase);
-                        let key = new Uint8Array(await sha256Hash(saltedPassphraseUint8Array));
+                            // Add salt to passphrase
+                            let saltedPassphrase = passphrase + saltString;
 
-                        // Decrypt data
-                        try {
-                            let decryptedData = await aesDecrypt(
-                                new Uint8Array(data[3]),
-                                key,
-                                new Uint8Array(data[4])
-                            );
+                            // Convert salted passphrase to Uint8Array and generate key
+                            let saltedPassphraseUint8Array = new TextEncoder().encode(saltedPassphrase);
+                            let key = new Uint8Array(await sha256Hash(saltedPassphraseUint8Array));
 
-                            // Decode data
+                            // Decrypt data
                             try {
-                                let decodedData = msgdecode(decryptedData);
+                                let decryptedData = await aesDecrypt(
+                                    new Uint8Array(data[3]),
+                                    key,
+                                    new Uint8Array(data[4])
+                                );
 
-                                this.data = {
-                                    encryptPart: decodedData,
-                                    plainTextPart: data[1],
-                                    type: data[0] === 2 ? "ENCRYPTED" : "HALF-ENCRYPTED",
-                                    isDecrypted: true
-                                };
+                                // Check checksum
+                                let checksum = Array.from(await sha256Hash(decryptedData));
+                                if (checksum.join() !== data[5].join()) {
+                                    // Checksum does not match
+                                    return "WRONG_PASSPHRASE";
+                                }
 
-                                this.#passphrase = passphrase;
-                                return "OK";
+                                // Decode data
+                                try {
+                                    let decodedData = msgdecode(decryptedData);
+
+                                    this.data = {
+                                        encryptPart: decodedData,
+                                        plainTextPart: data[1],
+                                        type: data[0] === 2 ? "ENCRYPTED" : "HALF-ENCRYPTED",
+                                        isDecrypted: true
+                                    };
+
+                                    this.#passphrase = passphrase;
+                                    return "OK";
+                                } catch {
+                                    return "WRONG_PASSPHRASE";
+                                }
                             } catch {
                                 return "WRONG_PASSPHRASE";
                             }
-                        } catch {
-                            return "WRONG_PASSPHRASE";
-                        }
-                    } else {
-                        if (data[0] === 1) {
-                            // Load unencrypted part only
-                            this.data = {
-                                encryptPart: null,
-                                plainTextPart: data[1],
-                                type: "HALF-ENCRYPTED",
-                                isDecrypted: false
-                            };
-                            return "PASSPHRASE_REQUIRED_HALF";
                         } else {
-                            return "PASSPHRASE_REQUIRED";
+                            if (data[0] === 1) {
+                                // Load unencrypted part only
+                                this.data = {
+                                    encryptPart: null,
+                                    plainTextPart: data[1],
+                                    type: "HALF-ENCRYPTED",
+                                    isDecrypted: false
+                                };
+                                return "PASSPHRASE_REQUIRED_HALF";
+                            } else {
+                                return "PASSPHRASE_REQUIRED";
+                            }
                         }
-                    }
-                default:
-                    return "UNKNOWN_DATA";
+                    default:
+                        return "UNKNOWN_DATA";
+                }
+            } catch {
+                return "UNKNOWN_DATA";
             }
         } else {
             return "NEW";
@@ -156,25 +172,38 @@ class API {
                 // Generate IV
                 let iv = crypto.getRandomValues(new Uint8Array(16));
 
+                let data = msgencode(this.data.encryptPart);
+
+                // Calculate SHA256 checksum
+                let checksum = Array.from(await sha256Hash(data));
+
                 // Encrypt data
                 let encryptedData = await aesEncrypt(
                     iv,
                     key,
-                    msgencode(this.data.encryptPart)
+                    data
                 );
+                console.log(encryptedData);
 
                 // Save data
+                let uncompressed = msgencode([
+                    this.data.type === "ENCRYPTED" ? 2 : 1,
+                    this.data.type === "ENCRYPTED" ?
+                        null :
+                        this.data.plainTextPart,
+                    Array.from(salt),
+                    Array.from(iv),
+                    Array.from(encryptedData),
+                    checksum
+                ]);
+
+                let compressed = pako.deflate(uncompressed, {
+                    level: 9
+                });
+
                 localStorage.setItem(
                     'duwallet',
-                    Array.from(msgencode([
-                        this.data.type === "ENCRYPTED" ? 2 : 1,
-                        this.data.type === "ENCRYPTED" ?
-                            null :
-                            this.data.plainTextPart,
-                        Array.from(salt),
-                        Array.from(iv),
-                        encryptedData
-                    ]))
+                    Array.from(compressed)
                         .map(x => x.toString(16).padStart(2, '0')).join("")
                 );
         }
